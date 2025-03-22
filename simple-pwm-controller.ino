@@ -25,7 +25,7 @@ static uint32_t lastPushTime = 0;    // チャタリング対策・長押し判�
 static bool isExecEvent = false;          // ボタンイベント
 
 // パワー設定
-void SetPower(int16_t level) {
+void SetPowerLevel(int16_t level) {
   if (level < 0 || POWER_LEVEL_MAX <= level) {
     // 範囲外の場合は強制OFF
     level = 0;
@@ -46,15 +46,17 @@ bool IsPowerOn() {
 }
 
 // パワーレベルOFF
-void PowerLevelOff() {
-  Serial.println(F("PowerLevel Off"));
+void PowerOff() {
+  Serial.println(F("Power Off"));
   powerLevel = 0;  // 0はOFF
+  SetPowerLevel(powerLevel);
 }
 
 // パワーレベルON
-void PowerLevelOn() {
-  Serial.println(F("PowerLevel On"));
+void PowerOn() {
+  Serial.println(F("Power On"));
   powerLevel = 1;
+  SetPowerLevel(powerLevel);
 }
 
 // パワーレベルのローテーション
@@ -62,13 +64,14 @@ void RotatePowerLevel() {
   powerLevel = (powerLevel % (POWER_LEVEL_MAX - 1)) + 1;
   Serial.print(F("RotatePowerLevel powerLevel:"));
   Serial.println(powerLevel);
+
+  SetPowerLevel(powerLevel);
 }
 
 // ボタン長押しイベント
 void OnButtonLong() {
   // パワーレベルのON/OFF
-  IsPowerOn() ? PowerLevelOff() : PowerLevelOn();
-  SetPower(powerLevel);
+  IsPowerOn() ? PowerOff() : PowerOn();
 }
 
 // ボタン押しイベント
@@ -76,7 +79,6 @@ void OnButton() {
   // 電源がONの時にパワーローテーションを行う
   if (IsPowerOn()) {
     RotatePowerLevel();
-    SetPower(powerLevel);
   }
 }
 
@@ -128,8 +130,7 @@ void setup() {
   }
 
   // 動作状態OFFで初期化
-  PowerLevelOff();
-  SetPower(powerLevel);
+  PowerOff();
   Serial.println(F("System Initialize"));
 }
 
